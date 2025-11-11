@@ -346,6 +346,39 @@ describe('Chat client', () => {
       expect(finalOutput).toMatchSnapshot();
     });
 
+    it('supports auto-streaming responses', async () => {
+      mockInference(
+        {
+          data: {
+            messages: [
+              {
+                role: 'user' as const,
+                content: 'What is the capital of France?'
+              }
+            ],
+            stream: true,
+            stream_options: {
+              include_usage: true
+            }
+          }
+        },
+        {
+          data: mockResponseStream,
+          status: 200
+        },
+        endpoint
+      );
+      jest.spyOn(AzureOpenAiChatClient.prototype, '_streamResponseChunks');
+
+      client.streaming = true;
+      expect(client.streaming).toBe(true);
+
+      const finalOutput = await client.invoke('What is the capital of France?');
+
+      expect(finalOutput).toMatchSnapshot();
+      expect(client._streamResponseChunks).toHaveBeenCalled();
+    });
+
     it('streams and aborts with a signal', async () => {
       mockInference(
         {
