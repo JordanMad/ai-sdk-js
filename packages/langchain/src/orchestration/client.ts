@@ -91,7 +91,7 @@ export class OrchestrationClient extends BaseChatModel<
     options: typeof this.ParsedCallOptions,
     runManager?: CallbackManagerForLLMRun
   ): Promise<ChatResult> {
-    if (this.streaming) {
+    if (options?.stream ?? this.streaming) {
       let generation;
       const stream = this._streamResponseChunks(messages, options, runManager);
       for await (const chunk of stream) {
